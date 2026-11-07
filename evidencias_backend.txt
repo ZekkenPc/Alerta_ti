@@ -1,0 +1,291 @@
+=== EVIDENCIAS BACKEND – Sistema de alertas TI (Evaluación 2) ===
+Alumno: Daniel Ivan Lucas Molina
+Fecha : 7/11/2026, 2:26:14 a.m.
+Node  : v22.23.4
+
+--- Prueba 1: Health check público
+Petición : GET /api/health
+Esperado : HTTP 200
+Resultado: HTTP 200 ✔ OK
+{
+  "estado": "ok",
+  "hora": "2026-11-07T02:26:14.926Z"
+}
+
+--- Prueba 2: Práctica 3: consulta de información (URL preasignada)
+Petición : GET /api/info
+Esperado : HTTP 200
+Resultado: HTTP 200 ✔ OK
+{
+  "proyecto": "Sistema de alertas TI",
+  "version": "2.0.0",
+  "descripcion": "API REST para recibir y consultar incidentes de infraestructura TI.",
+  "hora_servidor": "2026-11-07T02:26:14.956Z",
+  "incidentes_activos": 7,
+  "servidores_monitoreados": 8,
+  "endpoints": [
+    "GET  /api/health",
+    "GET  /api/info",
+    "POST /api/auth/login",
+    "GET  /api/incidentes",
+    "GET  /api/incidentes/:id",
+    "POST /api/incidentes (coordinador)",
+    "GET  /api/servidores",
+    "GET  /api/resumen"
+  ]
+}
+
+--- Prueba 3: Ruta protegida sin token
+Petición : GET /api/incidentes
+Esperado : HTTP 401
+Resultado: HTTP 401 ✔ OK
+{
+  "error": "No autorizado"
+}
+
+--- Prueba 4: Login con clave incorrecta
+Petición : POST /api/auth/login
+Cuerpo   : {"usuario":"coordinador","clave":"********"}
+Esperado : HTTP 401
+Resultado: HTTP 401 ✔ OK
+{
+  "error": "Usuario o contraseña incorrectos"
+}
+
+--- Prueba 5: Login con usuario inexistente (mismo mensaje genérico)
+Petición : POST /api/auth/login
+Cuerpo   : {"usuario":"noexiste","clave":"********"}
+Esperado : HTTP 401
+Resultado: HTTP 401 ✔ OK
+{
+  "error": "Usuario o contraseña incorrectos"
+}
+
+--- Prueba 6: Login con usuario solo espacios (validación servidor)
+Petición : POST /api/auth/login
+Cuerpo   : {"usuario":"   ","clave":"********"}
+Esperado : HTTP 400
+Resultado: HTTP 400 ✔ OK
+{
+  "error": "Datos inválidos"
+}
+
+--- Prueba 7: Login coordinador correcto
+Petición : POST /api/auth/login
+Cuerpo   : {"usuario":"coordinador","clave":"********"}
+Esperado : HTTP 200
+Resultado: HTTP 200 ✔ OK
+{
+  "token": "<TOKEN_JWT_OMITIDO>",
+  "usuario": {
+    "id": "u1",
+    "usuario": "coordinador",
+    "nombre": "Laura Méndez",
+    "rol": "coordinador"
+  }
+}
+
+--- Prueba 8: Login técnico correcto
+Petición : POST /api/auth/login
+Cuerpo   : {"usuario":"tecnico1","clave":"********"}
+Esperado : HTTP 200
+Resultado: HTTP 200 ✔ OK
+{
+  "token": "<TOKEN_JWT_OMITIDO>",
+  "usuario": {
+    "id": "u2",
+    "usuario": "tecnico1",
+    "nombre": "Carlos Ramírez",
+    "rol": "tecnico"
+  }
+}
+
+--- Prueba 9: Listar incidentes (ordenados del más reciente)
+Petición : GET /api/incidentes  (con token)
+Esperado : HTTP 200
+Resultado: HTTP 200 ✔ OK
+{
+  "total": 7,
+  "incidentes": [
+    {
+      "id": "INC-1042",
+      "titulo": "Caída del servicio de base de datos",
+      "servidor": "DB-PROD-01",
+      "servicio": "PostgreSQL",
+      "severidad": "P1",
+      "estado": "activo",
+      "detectado": "2026-11-07T02:14:14.859Z",
+      "descripcion": "El servicio PostgreSQL dejó de responder en el servidor principal. Las aplicaciones que dependen de él reportan errores de conexión.",
+      "logs": [
+        "[08:11:42] ERROR  connection pool exhausted (max=200)",
+        "[08:11:58] FATAL  could not write to file pg_wal: No space left on device",
+        "[08:12:00] ALERT  healthcheck failed 3/3 – service marked DOWN",
+        "[08:12:03] IN
+  ... (recortado)
+
+--- Prueba 10: Filtrar incidentes por severidad P1
+Petición : GET /api/incidentes?severidad=P1  (con token)
+Esperado : HTTP 200
+Resultado: HTTP 200 ✔ OK
+{
+  "total": 2,
+  "incidentes": [
+    {
+      "id": "INC-1042",
+      "titulo": "Caída del servicio de base de datos",
+      "servidor": "DB-PROD-01",
+      "servicio": "PostgreSQL",
+      "severidad": "P1",
+      "estado": "activo",
+      "detectado": "2026-11-07T02:14:14.859Z",
+      "descripcion": "El servicio PostgreSQL dejó de responder en el servidor principal. Las aplicaciones que dependen de él reportan errores de conexión.",
+      "logs": [
+        "[08:11:42] ERROR  connection pool exhausted (max=200)",
+        "[08:11:58] FATAL  could not write to file pg_wal: No space left on device",
+        "[08:12:00] ALERT  healthcheck failed 3/3 – service marked DOWN",
+        "[08:12:03] IN
+  ... (recortado)
+
+--- Prueba 11: Filtro con severidad inválida
+Petición : GET /api/incidentes?severidad=X  (con token)
+Esperado : HTTP 400
+Resultado: HTTP 400 ✔ OK
+{
+  "error": "Parámetro inválido"
+}
+
+--- Prueba 12: Detalle de incidente INC-1042
+Petición : GET /api/incidentes/INC-1042  (con token)
+Esperado : HTTP 200
+Resultado: HTTP 200 ✔ OK
+{
+  "id": "INC-1042",
+  "titulo": "Caída del servicio de base de datos",
+  "servidor": "DB-PROD-01",
+  "servicio": "PostgreSQL",
+  "severidad": "P1",
+  "estado": "activo",
+  "detectado": "2026-11-07T02:14:14.859Z",
+  "descripcion": "El servicio PostgreSQL dejó de responder en el servidor principal. Las aplicaciones que dependen de él reportan errores de conexión.",
+  "logs": [
+    "[08:11:42] ERROR  connection pool exhausted (max=200)",
+    "[08:11:58] FATAL  could not write to file pg_wal: No space left on device",
+    "[08:12:00] ALERT  healthcheck failed 3/3 – service marked DOWN",
+    "[08:12:03] INFO   failover to DB-PROD-02 not available"
+  ]
+}
+
+--- Prueba 13: Incidente inexistente
+Petición : GET /api/incidentes/INC-9999  (con token)
+Esperado : HTTP 404
+Resultado: HTTP 404 ✔ OK
+{
+  "error": "No encontrado"
+}
+
+--- Prueba 14: Listar servidores
+Petición : GET /api/servidores  (con token)
+Esperado : HTTP 200
+Resultado: HTTP 200 ✔ OK
+{
+  "total": 8,
+  "servidores": [
+    {
+      "nombre": "DB-PROD-01",
+      "ip": "10.10.1.10",
+      "tipo": "Base de datos",
+      "estado": "Caído",
+      "cpu": 12,
+      "memoria": 96,
+      "uptime": "0 h"
+    },
+    {
+      "nombre": "DB-PROD-02",
+      "ip": "10.10.1.11",
+      "tipo": "Base de datos (réplica)",
+      "estado": "En línea",
+      "cpu": 35,
+      "memoria": 58,
+      "uptime": "41 d"
+    },
+    {
+      "nombre": "SW-CORE-02",
+      "ip": "10.20.0.2",
+      "tipo": "Switch de core",
+      "estado": "Caído",
+      "cpu": 0,
+      "memoria": 0,
+      "uptime": "0 h"
+    },
+    {
+      "nombre": "APP-API-03",
+      "ip": "10.10.2.23",
+      "tipo": "Servidor de aplicacion
+  ... (recortado)
+
+--- Prueba 15: Resumen para el dashboard
+Petición : GET /api/resumen  (con token)
+Esperado : HTTP 200
+Resultado: HTTP 200 ✔ OK
+{
+  "incidentes_activos": 7,
+  "por_severidad": {
+    "P1": 2,
+    "P2": 2,
+    "P3": 3
+  },
+  "servidores": {
+    "en_linea": 4,
+    "degradado": 2,
+    "caido": 2
+  }
+}
+
+--- Prueba 16: Técnico intenta crear incidente (sin permiso)
+Petición : POST /api/incidentes  (con token)
+Cuerpo   : {"titulo":"Prueba de alerta","servidor":"APP-WEB-01","severidad":"P1"}
+Esperado : HTTP 403
+Resultado: HTTP 403 ✔ OK
+{
+  "error": "Acción no permitida"
+}
+
+--- Prueba 17: Coordinador crea incidente
+Petición : POST /api/incidentes  (con token)
+Cuerpo   : {"titulo":"Prueba de alerta","servidor":"APP-WEB-01","severidad":"P1"}
+Esperado : HTTP 201
+Resultado: HTTP 201 ✔ OK
+{
+  "id": "INC-1043",
+  "titulo": "Prueba de alerta",
+  "servidor": "APP-WEB-01",
+  "servicio": "",
+  "severidad": "P1",
+  "estado": "activo",
+  "detectado": "2026-11-07T02:26:15.380Z",
+  "descripcion": "",
+  "logs": []
+}
+
+--- Prueba 18: Crear incidente con servidor inexistente
+Petición : POST /api/incidentes  (con token)
+Cuerpo   : {"titulo":"Prueba de alerta","servidor":"NO-EXISTE","severidad":"P1"}
+Esperado : HTTP 400
+Resultado: HTTP 400 ✔ OK
+{
+  "error": "Datos inválidos"
+}
+
+--- Prueba 19: JSON mal formado (sin detalles técnicos)
+Petición : POST /api/auth/login
+Esperado : HTTP 400
+Resultado: HTTP 400 ✔ OK
+{
+  "error": "Datos inválidos"
+}
+
+--- Prueba 20: Simulador de alertas (recepción de incidentes nuevos)
+Incidentes antes: 8  |  después de un ciclo del simulador: 9  ✔ OK
+Nuevo incidente: INC-1044 [P3] Tarea programada fallida en APP-API-03
+
+=== RESUMEN: 20 pruebas ejecutadas, 0 fallidas ===

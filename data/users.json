@@ -1,0 +1,23 @@
+[
+  {
+    "id": "u1",
+    "usuario": "coordinador",
+    "nombre": "Laura Méndez",
+    "rol": "coordinador",
+    "claveHash": "$2a$10$6rnrBd4GC4HAfsddtkwKn.cQ6/MfhWW3H.FLe6J4vrqvlipZqigiW"
+  },
+  {
+    "id": "u2",
+    "usuario": "tecnico1",
+    "nombre": "Carlos Ramírez",
+    "rol": "tecnico",
+    "claveHash": "$2a$10$ux7vj3Lh8StxlsR0/S2oQOgvaqej7sJRQ2jfyN60t4aKHJ2aoUA4."
+  },
+  {
+    "id": "u3",
+    "usuario": "tecnico2",
+    "nombre": "Ana Torres",
+    "rol": "tecnico",
+    "claveHash": "$2a$10$SD8X/Hif94ajxYpksaAyR.ft5C3RpYjbcZDG2bZdP5WOLwg8.40XC"
+  }
+]

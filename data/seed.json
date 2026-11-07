@@ -1,0 +1,89 @@
+{
+  "incidentes": [
+    {
+      "id": "INC-1042", "hace_min": 12,
+      "titulo": "Caída del servicio de base de datos",
+      "servidor": "DB-PROD-01", "servicio": "PostgreSQL", "severidad": "P1",
+      "descripcion": "El servicio PostgreSQL dejó de responder en el servidor principal. Las aplicaciones que dependen de él reportan errores de conexión.",
+      "logs": [
+        "[08:11:42] ERROR  connection pool exhausted (max=200)",
+        "[08:11:58] FATAL  could not write to file pg_wal: No space left on device",
+        "[08:12:00] ALERT  healthcheck failed 3/3 – service marked DOWN",
+        "[08:12:03] INFO   failover to DB-PROD-02 not available"
+      ]
+    },
+    {
+      "id": "INC-1041", "hace_min": 36,
+      "titulo": "Pérdida de conectividad en switch de core",
+      "servidor": "SW-CORE-02", "servicio": "Red troncal", "severidad": "P1",
+      "descripcion": "El switch de core perdió enlace con dos nodos de distribución. Se detecta pérdida de paquetes superior al 60%.",
+      "logs": [
+        "[07:47:51] WARN   port Gi1/0/24 flapping",
+        "[07:47:59] ERROR  LACP partner timeout on Po2",
+        "[07:48:00] ALERT  packet loss 63% to 10.20.0.1",
+        "[07:48:10] ERROR  OSPF neighbor 10.20.0.1 state change FULL -> DOWN"
+      ]
+    },
+    {
+      "id": "INC-1040", "hace_min": 64,
+      "titulo": "API de pagos con latencia elevada",
+      "servidor": "APP-API-03", "servicio": "Servicio de pagos", "severidad": "P2",
+      "descripcion": "El tiempo de respuesta promedio de la API de pagos superó los 4 segundos. Aún procesa solicitudes pero con degradación notable.",
+      "logs": [
+        "[07:19:30] WARN   response time p95 = 4.2s (umbral 1.5s)",
+        "[07:19:45] WARN   thread pool at 92% capacity",
+        "[07:20:00] ALERT  SLA breach risk on /v1/payments"
+      ]
+    },
+    {
+      "id": "INC-1039", "hace_min": 89,
+      "titulo": "Uso de CPU sostenido por encima del 90%",
+      "servidor": "APP-WEB-01", "servicio": "Servidor web Nginx", "severidad": "P2",
+      "descripcion": "El servidor web mantiene un uso de CPU superior al 90% durante más de 15 minutos.",
+      "logs": [
+        "[06:40:00] WARN   cpu_usage=91%",
+        "[06:55:00] ALERT  cpu_usage>90% for 15m",
+        "[06:55:02] INFO   top process: php-fpm (pid 2231) 74%"
+      ]
+    },
+    {
+      "id": "INC-1038", "hace_min": 140,
+      "titulo": "Certificado SSL próximo a vencer",
+      "servidor": "LB-EDGE-01", "servicio": "Balanceador de carga", "severidad": "P3",
+      "descripcion": "El certificado SSL del dominio principal vence en 6 días. Se requiere renovación.",
+      "logs": [
+        "[06:00:00] WARN   certificate expires in 6 days",
+        "[06:00:01] INFO   auto-renewal job not configured"
+      ]
+    },
+    {
+      "id": "INC-1037", "hace_min": 290,
+      "titulo": "Respaldo nocturno completado con advertencias",
+      "servidor": "BKP-NAS-01", "servicio": "Respaldos", "severidad": "P3",
+      "descripcion": "El respaldo nocturno terminó, pero 12 archivos no pudieron copiarse por estar en uso.",
+      "logs": [
+        "[03:29:10] WARN   skipped 12 files (locked)",
+        "[03:30:00] INFO   backup finished with warnings"
+      ]
+    },
+    {
+      "id": "INC-1036", "hace_min": 600,
+      "titulo": "Espacio en disco al 85%",
+      "servidor": "FILE-SRV-02", "servicio": "Servidor de archivos", "severidad": "P3",
+      "descripcion": "El volumen de datos alcanzó el 85% de su capacidad. Se recomienda depuración o ampliación.",
+      "logs": [
+        "[22:10:00] WARN   /data usage 85% (threshold 80%)"
+      ]
+    }
+  ],
+  "servidores": [
+    { "nombre": "DB-PROD-01", "ip": "10.10.1.10", "tipo": "Base de datos", "estado": "Caído", "cpu": 12, "memoria": 96, "uptime": "0 h" },
+    { "nombre": "DB-PROD-02", "ip": "10.10.1.11", "tipo": "Base de datos (réplica)", "estado": "En línea", "cpu": 35, "memoria": 58, "uptime": "41 d" },
+    { "nombre": "SW-CORE-02", "ip": "10.20.0.2", "tipo": "Switch de core", "estado": "Caído", "cpu": 0, "memoria": 0, "uptime": "0 h" },
+    { "nombre": "APP-API-03", "ip": "10.10.2.23", "tipo": "Servidor de aplicaciones", "estado": "Degradado", "cpu": 78, "memoria": 81, "uptime": "17 d" },
+    { "nombre": "APP-WEB-01", "ip": "10.10.3.5", "tipo": "Servidor web", "estado": "Degradado", "cpu": 92, "memoria": 64, "uptime": "29 d" },
+    { "nombre": "LB-EDGE-01", "ip": "10.10.0.2", "tipo": "Balanceador de carga", "estado": "En línea", "cpu": 22, "memoria": 40, "uptime": "88 d" },
+    { "nombre": "BKP-NAS-01", "ip": "10.30.0.7", "tipo": "Almacenamiento", "estado": "En línea", "cpu": 9, "memoria": 33, "uptime": "120 d" },
+    { "nombre": "FILE-SRV-02", "ip": "10.30.0.12", "tipo": "Servidor de archivos", "estado": "En línea", "cpu": 18, "memoria": 55, "uptime": "64 d" }
+  ]
+}

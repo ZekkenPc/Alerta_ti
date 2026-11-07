@@ -1,0 +1,54 @@
+const express = require("express");
+const router = express.Router();
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const pool = require("../config/db"); // Tu conexión a MySQL
+
+router.post("/login", async (req, res) => {
+  // La app envía 'usuario' y 'clave' (sin hashear)
+  const { usuario, clave } = req.body;
+
+  try {
+    // 1. Buscar al usuario en la base de datos
+    const [rows] = await pool.query("SELECT * FROM usuarios WHERE nombre = ?", [
+      usuario,
+    ]);
+
+    if (rows.length === 0) {
+      // Mensaje de error genérico para no dar pistas, como exige la Práctica 5
+      return res.status(401).json({ error: "Credenciales inválidas" });
+    }
+
+    const usuarioDB = rows[0];
+
+    // 2. Comparar la contraseña enviada con el claveHash de la base de datos
+    // Asumiendo que tu tabla de usuarios tiene una columna 'claveHash'
+    const validPassword = await bcrypt.compare(clave, usuarioDB.claveHash);
+
+    if (!validPassword) {
+      return res.status(401).json({ error: "Credenciales inválidas" });
+    }
+
+    // 3. Generar el JWT
+    const token = jwt.sign(
+      { id: usuarioDB.id, rol: usuarioDB.rol },
+      process.env.JWT_SECRET || "secreto_temporal_para_desarrollo",
+      { expiresIn: "8h" },
+    );
+
+    // 4. Devolver el token y los datos esenciales
+    res.json({
+      token,
+      usuario: {
+        id: usuarioDB.id,
+        nombre: usuarioDB.nombre,
+        rol: usuarioDB.rol,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+module.exports = router;
